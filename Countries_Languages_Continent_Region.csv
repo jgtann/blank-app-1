@@ -1,17 +1,17 @@
-﻿Continental Region,Country,Population (million) (2005 UN estimates),No. of native spoken languages,Main Spoken Languages/Language Groups (with estimated % of first language speakers if over 10% of population),Languages with official status,Languages with national or regional status
+﻿continent,country,population_million_2005,no_native_languages,main_spoken_languages,languages_official_status,languages_national_or_regional_status
 Africa,Algeria,32.9,18,"Maghrebi Arabic (64%), Berber/Tamazight languages (13%)",Arabic,Tamazight
 Africa,Angola,15.9,41,"Umbundu (36%), Kimbundu (27%), Kikongo, Chokwe, Kwanyama, Luvale",Portuguese,"Kikongo, Kimbundu, Chokwe, Kwanyama"
 Africa,Benin,8.4,54,"Fon (23%), Aja, Baatonum, Yoruba, Fulfulde, Goun",French,
 Africa,Botswana,1.8,28,Setswana (69%),English,"Setswana, Kalanga"
 Africa,Burkina Faso,13.2,68,"Mooré (37%), Manding (Dyula), Fulfulde, Gurma, Dagari",French,"Mooré, Dyula, Fula"
 Africa,Burundi,7.5,<10,Kirundi (>90%),"French, Kirundi",Swahili
-Africa,Cameroun,16.3,279,"Ewondo, Fulfulde, Bamileke languages, Basaa","French, English",
-Africa,Cape Verde,0.5,<10,Creole Portuguese (Kabuverdianu) (95%),"Portuguese, Kabuverdianu",
-Africa,Central African Rep,4.0,69,"Gbaya (31%), Banda (18%), Sango","French, Sango",
+Africa,Cameroon,16.3,279,"Ewondo, Fulfulde, Bamileke languages, Basaa","French, English",
+Africa,Cabo Verde,0.5,<10,Creole Portuguese (Kabuverdianu) (95%),"Portuguese, Kabuverdianu",
+Africa,Central African Republic,4.0,69,"Gbaya (31%), Banda (18%), Sango","French, Sango",
 Africa,Chad,9.7,132,"Sara (16%), Arabic, Mabang","Arabic, French",
 Africa,Comoros,0.8,<10,"Comorian (76%), Arabic","Arabic, Comorian, French",
-Africa,Congo (Democratic Rep),57.5,214,"Luba (13%), Kikongo (10%), Swahili (Kingwana), Lingala, Kinyarwanda",French,"Kikongo, Lingala, Swahili, Tshiluba"
-Africa,Congo Rep,4.0,62,"Teke (50%), Kikongo (39%), Lingala",French,"Lingala, Munukutuba"
+Africa,"Congo, Democratic Republic of the",57.5,214,"Luba (13%), Kikongo (10%), Swahili (Kingwana), Lingala, Kinyarwanda",French,"Kikongo, Lingala, Swahili, Tshiluba"
+Africa,Congo Republic of the,4.0,62,"Teke (50%), Kikongo (39%), Lingala",French,"Lingala, Munukutuba"
 Africa,Côte D'Ivoire,18.2,78,"Baulé (12%), Anyi, Senoufo, Dan, Dyula, Bété",French,
 Africa,Djibouti,0.8,<10,"Afar (50%), Somali (42%), Arabic","Arabic, French",
 Africa,Egypt,74.0,11,Arabic (85%),Arabic,

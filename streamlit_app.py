@@ -1,108 +1,82 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import country_converter as coco
 
-# Load and preprocess data
-df = pd.read_csv("Countries_Languages_Continent_Region.csv")
+# Set the page layout to wide for better screen utilization
+st.set_page_config(layout="wide")
 
-# Split Continental Region into Continent and Region
-df[['Continent', 'Region']] = df['Continental Region'].str.extract(r'^([^\(]+)(?:\((.*)\))?$')
-df['Continent'] = df['Continent'].str.strip()
-df['Region'] = df['Region'].str.strip()
+# Safely load dataset
+@st.cache_data
+def load_data():
+    try:
+        data = pd.read_csv('Countries_Languages_Continent_Region.csv')
+        return data
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return pd.DataFrame()
 
-# Function to extract languages from multiple columns
-def extract_languages(row):
-    langs = []
-    columns_to_check = [
-        'Main Spoken Languages/Language Groups (with estimated % of first language speakers if over 10% of population)',
-        'Languages with official status',
-        'Languages with national or regional status'
-    ]
-    
-    for col in columns_to_check:
-        if pd.notna(row[col]):
-            for lang in row[col].split(', '):
-                # Remove percentage information and trim
-                clean_lang = lang.split('(')[0].strip()
-                if clean_lang:
-                    langs.append(clean_lang)
-    return list(set(langs))  # Remove duplicates
+data = load_data()
 
-df['All_Languages'] = df.apply(extract_languages, axis=1)
+if not data.empty:
+    # Streamlit title
+    st.title('Interactive Country Map with Filters')
 
-# Standardize country names for mapping
-def standardize_country(name):
-    return coco.convert(names=name, to='name_short')
+    # Sidebar filters
+    continent_filter = st.sidebar.multiselect('Select Continent', options=data['continent'].unique(), default=data['continent'].unique())
 
-df['Country_Standard'] = df['Country'].apply(standardize_country)
+    # Cascaded filtering for countries based on continent selection
+    available_countries = data[data['continent'].isin(continent_filter)]['country'].unique()
+    country_filter = st.sidebar.multiselect('Select Country', options=available_countries, default=[])
 
-# Streamlit app
-st.title("Interactive Country Map Explorer")
+    language_filter = st.sidebar.text_input('Search Language')
 
-# Create filters
-selected_continent = st.sidebar.multiselect(
-    "Select Continent",
-    options=sorted(df['Continent'].unique()),
-    default=None
-)
+    # Filter dataset based on selections
+    filtered_data = data[data['continent'].isin(continent_filter)]
 
-available_regions = df[df['Continent'].isin(selected_continent)]['Region'].unique() if selected_continent else []
-selected_region = st.sidebar.multiselect(
-    "Select Region",
-    options=sorted(available_regions),
-    default=None
-)
+    if country_filter:
+        filtered_data = filtered_data[filtered_data['country'].isin(country_filter)]
 
-# Country filter (based on continent/region selection)
-filtered_countries = df
-if selected_continent:
-    filtered_countries = filtered_countries[filtered_countries['Continent'].isin(selected_continent)]
-if selected_region:
-    filtered_countries = filtered_countries[filtered_countries['Region'].isin(selected_region)]
+    if language_filter:
+        filtered_data = filtered_data[filtered_data['main_spoken_languages'].str.contains(language_filter, case=False, na=False)]
 
-selected_countries = st.sidebar.multiselect(
-    "Select Countries",
-    options=sorted(filtered_countries['Country'].unique()),
-    default=None
-)
+    # Prepare hover text explicitly with safe handling of missing data
+    filtered_data['hover_text'] = (
+        filtered_data['country'].fillna('Country: N/A') + '<br>' +
+        'Population (2005): ' + filtered_data['population_million_2005'].fillna('N/A').astype(str) + ' million<br>' +
+        'Native Languages: ' + filtered_data['no_native_languages'].fillna('N/A').astype(str) + '<br>' +
+        'Main Languages: ' + filtered_data['main_spoken_languages'].fillna('N/A') + '<br>' +
+        'Official Languages: ' + filtered_data['languages_official_status'].fillna('N/A') + '<br>' +
+        'Regional Languages: ' + filtered_data['languages_national_or_regional_status'].fillna('N/A')
+    )
 
-# Language filter (based on current selection)
-all_languages = list(set([lang for sublist in filtered_countries['All_Languages'] for lang in sublist]))
-selected_languages = st.sidebar.multiselect(
-    "Select Languages",
-    options=sorted(all_languages),
-    default=None
-)
+    # Interactive map using Plotly with custom hover text
+    fig = px.choropleth(
+        filtered_data,
+        locations='country',
+        locationmode='country names',
+        color='continent',
+        hover_name=None,
+        hover_data={'hover_text': True, 'continent': False},
+        title='Countries Highlighted by Filters'
+    )
 
-# Apply filters
-final_df = df
-if selected_continent:
-    final_df = final_df[final_df['Continent'].isin(selected_continent)]
-if selected_region:
-    final_df = final_df[final_df['Region'].isin(selected_region)]
-if selected_countries:
-    final_df = final_df[final_df['Country'].isin(selected_countries)]
-if selected_languages:
-    final_df = final_df[final_df['All_Languages'].apply(lambda x: any(lang in x for lang in selected_languages))]
+    # Improve hover and visual aesthetics
+    fig.update_traces(
+        marker_line_width=0.5,
+        marker_line_color='black',
+        hoverlabel=dict(font_size=14),
+        hovertemplate='%{customdata[0]}<extra></extra>'
+    )
+    fig.update_geos(fitbounds="locations", visible=False)
 
-# Create map
-st.subheader("Interactive Map")
-fig = px.choropleth(
-    final_df,
-    locations="Country_Standard",
-    locationmode='country names',
-    color="Continent",
-    hover_name="Country",
-    hover_data=[
-        "Population (million) (2005 UN estimates)",
-        "No. of native spoken languages",
-        "All_Languages"
-    ],
-    title="Country Distribution Map"
-)
-st.plotly_chart(fig)
+    # Adjust the map layout to fully utilize the available width and height
+    fig.update_layout(
+        autosize=True,
+        margin={"r":0, "t":40, "l":0, "b":0},
+        geo=dict(showframe=False, showcoastlines=True, projection_type='natural earth')
+    )
 
-# Show raw data
-st.subheader("Filtered Data")
-st.dataframe(final_df)
+    # Display map in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.warning("The dataset is empty or failed to load. Please check your file.")
