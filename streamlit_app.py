@@ -19,7 +19,7 @@ data = load_data()
 
 if not data.empty:
     # Streamlit title
-    st.title('Interactive Country Map with Filters')
+    st.title('Mapping the Languages')
 
     # Sidebar filters
     continent_filter = st.sidebar.multiselect('Select Continent', options=data['continent'].unique(), default=data['continent'].unique())
@@ -57,7 +57,7 @@ if not data.empty:
         color='continent',
         hover_name=None,
         hover_data={'hover_text': True, 'continent': False},
-        title='Countries Highlighted by Filters'
+        title='(Source: https://portal.oxfordshire.gov.uk/content/public/LandC/SandPM/data/census/Countries_Languages.xls)'
     )
 
     # Improve hover and visual aesthetics
